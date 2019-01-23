@@ -1,36 +1,50 @@
-var btn = document.getElementById('btn_cargar_usuarios');
-var loader = document.getElementById('loader');
+var btn_cargar = document.getElementById('btn_cargar_usuarios'),
+    error_box = document.getElementById('error_box'),
+    tabla = document.getElementById('tabla'),
+    loader = document.getElementById('loader');
 
-btn.addEventListener('click', function(){
+var usuario_nombre, 
+    usuario_edad,
+    usuario_pais,
+    usuario_correo;
+
+function cargarUsuarios(){
+    tabla.innerHTML='<tr><th>ID</th><th>Nombre</th><th>Edad</th><th>País</th><th>Correo</th></tr>';
     var peticion = new XMLHttpRequest();
-    peticion.open('GET', 'http://www.json-generator.com/api/json/get/cfOWQaIaBe?indent=2');
+    peticion.open('GET', 'php/leer-datos.php');
 
     loader.classList.add('active');
 
-    peticion.onload = function(){
-        //console.log(JSON.parse(peticion.responseText)[0].nombre);
-    
+    peticion.onload = function() {
         var datos = JSON.parse(peticion.responseText);
         
-        datos.forEach(persona => {
-            var elemento = document.createElement('tr');
-            elemento
-        });
+
+        if (datos.error) {
+            error_box.classList.add('active');    
+        }else{
+            for (var i = 0; i < datos.length; i++) {
+                var elemento = document.createElement('tr');
+                elemento.innerHTML += ("<td>" + datos[i].id +"</td>");
+                elemento.innerHTML += ("<td>" + datos[i].nombre +"</td>");
+                elemento.innerHTML += ("<td>" + datos[i].edad +"</td>");
+                elemento.innerHTML += ("<td>" + datos[i].pais +"</td>");
+                elemento.innerHTML += ("<td>" + datos[i].correo +"</td>");
+                tabla.appendChild(elemento);
+                
+            }
+        }
     }
 
-
-    peticion.onreadystatechange = function(){        
-        if (peticion.readyState == 4 && peticion.status==200){
-            //2 - peticion recibida
-            //3 - petición está siendo procesada
-            //4 - petición finalizada y respuesta lista
-
-            //status 200 - Todo está correcto y si lo encuentra
-            //sino... error 404
-
+    peticion.onreadystatechange = function(){
+        if (peticion.readyState == 4 && peticion.status == 200) {
             loader.classList.remove('active');
         }
     }
 
+
     peticion.send();
+}
+
+btn_cargar.addEventListener('click', function(){
+    cargarUsuarios();
 });
